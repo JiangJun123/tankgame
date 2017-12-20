@@ -71,11 +71,12 @@ public class Battle : MonoBehaviour
     }
 
     //开始战斗
-    public void StartTwoCampBattle(int n1, int n2)
+    public void StartTwoCampBattle(int n1, int n2, int mode)
     {
         Transform sp = GameObject.Find("SwopPoints").transform;
         Transform spCamp1 = sp.GetChild(0);
         Transform spCamp2 = sp.GetChild(1);
+        
         //判断
         if (spCamp1.childCount < n1 || spCamp2.childCount < n2)
         {
