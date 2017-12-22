@@ -2,6 +2,7 @@
 using System.Collections;
 using UnityEngine.UI;
 using System.Collections.Generic;
+using UnityEngine.SceneManagement;
 
 public class OptionPanel : PanelBase
 {
@@ -47,11 +48,9 @@ public class OptionPanel : PanelBase
     public void OnStartClick()
     {
         PanelMgr.instance.ClosePanel("TitlePanel");
-        int n1 = dropdown1.value + 1;
-        int n2 = dropdown2.value + 1;
-        int mode = dropdown3.value;
-        
-        Battle.instance.StartTwoCampBattle(n1, n2, mode);
+		Constants.enemyNumber = dropdown2.value + 1;
+		Constants.friendNumber = dropdown1.value + 1;
+		SceneManager.LoadScene (Constants.modeOptionsValue [ dropdown3.value]);
         Close();
     }
 

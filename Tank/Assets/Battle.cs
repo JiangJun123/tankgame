@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
-
+using UnityEngine.SceneManagement;
 public class Battle : MonoBehaviour
 {
     //单例
@@ -10,6 +10,15 @@ public class Battle : MonoBehaviour
     //坦克预设
     public GameObject[] tankPrefabs;
 
+
+
+	public Battle(){
+		
+	}
+	public void Awake(){
+		instance = this;
+		instance.StartTwoCampBattle (Constants.friendNumber, Constants.enemyNumber);
+	}
     //开始
     void Start()
     {
@@ -51,7 +60,10 @@ public class Battle : MonoBehaviour
                     return false;
         }
         Debug.Log("阵营" + camp + "获胜");
-        PanelMgr.instance.OpenPanel<WinPanel>("", camp);
+        //PanelMgr.instance.OpenPanel<WinPanel>("", camp);
+		Constants.isWin=camp;
+		//SceneManager.Dont (Constants.StartSceneName);
+		Application.LoadLevelAdditive (Constants.StartSceneName);
         return true;
     }
 
@@ -71,14 +83,14 @@ public class Battle : MonoBehaviour
     }
 
     //开始战斗
-    public void StartTwoCampBattle(int n1, int n2, int mode)
+	public void StartTwoCampBattle(int friendNumber, int enemyNumber)
     {
         Transform sp = GameObject.Find("SwopPoints").transform;
         Transform spCamp1 = sp.GetChild(0);
         Transform spCamp2 = sp.GetChild(1);
         
         //判断
-        if (spCamp1.childCount < n1 || spCamp2.childCount < n2)
+		if (spCamp1.childCount < friendNumber || spCamp2.childCount < enemyNumber)
         {
             Debug.LogError("出生点数量不够");
             return;
@@ -91,15 +103,15 @@ public class Battle : MonoBehaviour
         //清理场景
         ClearBattle();
         //产生坦克
-        battleTanks = new BattleTank[n1 + n2];
-        for (int i = 0; i < n1; i++)
+		battleTanks = new BattleTank[friendNumber + enemyNumber];
+		for (int i = 0; i < friendNumber; i++)
         {
             GenerateTank(1, i, spCamp1, i);
 
         }
-        for (int i = 0; i < n2; i++)
+		for (int i = 0; i < enemyNumber; i++)
         {
-            GenerateTank(2, i, spCamp2, n1+i);
+			GenerateTank(2, i, spCamp2, friendNumber+i);
         }
         //把第一辆坦克设为玩家操控
         Tank tankCmp = battleTanks[0].tank;
@@ -128,4 +140,5 @@ public class Battle : MonoBehaviour
         battleTanks[index].tank = tankCmp;
         battleTanks[index].camp = camp;
     }
+
 }
