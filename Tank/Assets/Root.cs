@@ -5,6 +5,10 @@ public class Root : MonoBehaviour
 {
     void Start()
     {
-        PanelMgr.instance.OpenPanel<TitlePanel>("");
+		if (Constants.isWin != -1) {
+			PanelMgr.instance.OpenPanel<WinPanel> ("", Constants.isWin);
+		} else {
+			PanelMgr.instance.OpenPanel<TitlePanel> ("");
+		}
     }
 }

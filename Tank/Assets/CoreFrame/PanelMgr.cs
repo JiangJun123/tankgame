@@ -20,6 +20,7 @@ public class PanelMgr : MonoBehaviour
         instance = this;
         InitLayer();
         dict = new Dictionary<string, PanelBase>();
+
     }
 
     //初始化层
