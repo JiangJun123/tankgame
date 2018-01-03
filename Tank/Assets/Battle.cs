@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using UnityEngine.SceneManagement;
 public class Battle : MonoBehaviour
 {
@@ -62,8 +61,9 @@ public class Battle : MonoBehaviour
         Debug.Log("阵营" + camp + "获胜");
         //PanelMgr.instance.OpenPanel<WinPanel>("", camp);
 		Constants.isWin=camp;
-		//SceneManager.Dont (Constants.StartSceneName);
-		Application.LoadLevelAdditive (Constants.StartSceneName);
+        //SceneManager.Dont (Constants.StartSceneName);
+        SceneManager.LoadScene(Constants.StartSceneName);
+        Cursor.visible = true;
         return true;
     }
 
@@ -136,9 +136,11 @@ public class Battle : MonoBehaviour
         Tank tankCmp = tankObj.GetComponent<Tank>();
         tankCmp.ctrlType = Tank.CtrlType.computer;
         //battleTanks
-        battleTanks[index] = new BattleTank();
-        battleTanks[index].tank = tankCmp;
-        battleTanks[index].camp = camp;
+        battleTanks[index] = new BattleTank
+        {
+            tank = tankCmp,
+            camp = camp
+        };
     }
 
 }

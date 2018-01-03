@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class Tank : MonoBehaviour
 {
@@ -17,7 +18,6 @@ public class Tank : MonoBehaviour
     //炮管的旋转范围
     private float maxRoll = 10f;
     private float minRoll = -4f;
-
 
     //轮轴
     public List<AxleInfo> axleInfos;
@@ -45,7 +45,9 @@ public class Tank : MonoBehaviour
     //开炮的时间间隔
     private float shootInterval = 0.5f;
 
+    public Canvas stopCanvas;
 
+    public Texture ScoreImage;
     //操控类型
     public enum CtrlType
     {
@@ -71,6 +73,9 @@ public class Tank : MonoBehaviour
     //生命指示条素材
     public Texture2D hpBarBg;
     public Texture2D hpBar;
+
+    public RenderTexture minimap;
+    public Texture minimapSider;
 
     //击杀提示图标
     public Texture2D killUI;
@@ -128,7 +133,7 @@ public class Tank : MonoBehaviour
         turretRotTarget = rot.y;
         turretRollTarget = rot.x;
         //发射炮弹
-        if (ai.IsShoot()) 
+        if (ai.IsShoot())
             Shoot();
         //移动
         steering = ai.GetSteering();
@@ -174,44 +179,58 @@ public class Tank : MonoBehaviour
     //每帧执行一次
     void Update()
     {
-        //操控
-        PlayerCtrl();
-        CombuterCtrl();
-        NoneCtrl();
-        //遍历车轴
-        foreach (AxleInfo axleInfo in axleInfos)
+        if (!Constants.stopflag)
         {
-            //转向
-            if (axleInfo.steering)
+            //操控
+            PlayerCtrl();
+            CombuterCtrl();
+            NoneCtrl();
+            //遍历车轴
+            foreach (AxleInfo axleInfo in axleInfos)
             {
-                axleInfo.leftWheel.steerAngle = steering;
-                axleInfo.rightWheel.steerAngle = steering;
+                //转向
+                if (axleInfo.steering)
+                {
+                    axleInfo.leftWheel.steerAngle = steering;
+                    axleInfo.rightWheel.steerAngle = steering;
+                }
+                //马力
+                if (axleInfo.motor)
+                {
+                    axleInfo.leftWheel.motorTorque = motor;
+                    axleInfo.rightWheel.motorTorque = motor;
+                }
+                //制动
+                if (true)
+                {
+                    axleInfo.leftWheel.brakeTorque = brakeTorque;
+                    axleInfo.rightWheel.brakeTorque = brakeTorque;
+                }
+                //转动轮子履带
+                if (axleInfos[1] != null && axleInfo == axleInfos[1])
+                {
+                    WheelsRotation(axleInfos[1].leftWheel);
+                    TrackMove();
+                }
             }
-            //马力
-            if (axleInfo.motor)
+
+            //炮塔炮管旋转
+            TurretRotation();
+            TurretRoll();
+            //马达音效
+            MotorSound();
+            if (Input.GetKeyDown(KeyCode.Escape))
             {
-                axleInfo.leftWheel.motorTorque = motor;
-                axleInfo.rightWheel.motorTorque = motor;
-            }
-            //制动
-            if (true)
-            {
-                axleInfo.leftWheel.brakeTorque = brakeTorque;
-                axleInfo.rightWheel.brakeTorque = brakeTorque;
-            }
-            //转动轮子履带
-            if (axleInfos[1] != null && axleInfo == axleInfos[1])
-            {
-                WheelsRotation(axleInfos[1].leftWheel);
-                TrackMove();
+                Constants.stopflag = !Constants.stopflag;
+
+                //Button[] bbs=stopCanvas.gameObject.transform.transform.GetComponents<Button>();
+
+                //            Button btnQuit = stopCanvas.transform.Find("btn_quit").GetComponent<Button>();
+
+                //            Debug.Log("s");
             }
         }
 
-        //炮塔炮管旋转
-        TurretRotation();
-        TurretRoll();
-        //马达音效
-        MotorSound();
     }
 
     //炮塔旋转
@@ -317,7 +336,7 @@ public class Tank : MonoBehaviour
         if (bullet == null)
             return;
         //发射
-        Vector3 pos = gun.position + gun.forward*5;
+        Vector3 pos = gun.position + gun.forward * 5;
         GameObject bulletObj = (GameObject)Instantiate(bullet, pos, gun.rotation);
         Bullet bulletCmp = bulletObj.GetComponent<Bullet>();
         if (bulletCmp != null)
@@ -346,12 +365,12 @@ public class Tank : MonoBehaviour
             destoryObj.transform.localPosition = Vector3.zero;
             ctrlType = CtrlType.none;
             //显示击杀提示
-            if(attackTank != null )
-			{
-				Tank tankCmp = attackTank.GetComponent<Tank>();
-				if(tankCmp != null && tankCmp.ctrlType == CtrlType.player) 
-					tankCmp.StartDrawKill();
-			}
+            if (attackTank != null)
+            {
+                Tank tankCmp = attackTank.GetComponent<Tank>();
+                if (tankCmp != null && tankCmp.ctrlType == CtrlType.player)
+                    tankCmp.StartDrawKill();
+            }
             //AI处理
             if (ai != null)
             {
@@ -443,8 +462,16 @@ public class Tank : MonoBehaviour
         GUI.DrawTexture(hpRect, hpBar);
         //文字
         string text = Mathf.Ceil(hp).ToString() + "/" + Mathf.Ceil(maxHp).ToString();
-        Rect textRect = new Rect(bgRect.x + 80, bgRect.y -10, 50, 50);
+        Rect textRect = new Rect(bgRect.x + 80, bgRect.y - 10, 50, 50);
         GUI.Label(textRect, text);
+    }
+
+    public void DrawMinimap()
+    {
+        Rect siderRect = new Rect(0, 0, minimapSider.width, minimapSider.height);
+        GUI.DrawTexture(siderRect, minimapSider);
+        Rect minimapRect = new Rect(12, 12, 256, 256);
+        GUI.DrawTexture(minimapRect, minimap);
     }
 
     //绘制击杀图标
@@ -457,6 +484,48 @@ public class Tank : MonoBehaviour
             GUI.DrawTexture(rect, killUI);
         }
     }
+    private void DrawStopUI()
+    {
+
+        if (Constants.canvas == null)
+        {
+            Constants.canvas = Instantiate(stopCanvas);
+        }
+        Constants.canvas.gameObject.SetActive(true);
+        Cursor.visible = true;
+        Time.timeScale = 0;
+        Constants.stopflag = true;
+
+    }
+
+    void DrawScore()
+    {
+        float wh = ScoreImage.width / ScoreImage.height;
+        int w = (int)(0.15 * Screen.width);
+        int h = (int)(w * (1 / wh));
+        GUI.DrawTexture(new Rect((Screen.width - w) / 2, 0, w, h), ScoreImage);
+        int enemyNumber = 0;
+        int friendNumber = 0;
+        for (int i = 0; i < Battle.instance.battleTanks.Length; i++)
+        {
+            Tank tank = Battle.instance.battleTanks[i].tank;
+            if (tank.hp > 0)
+            {
+                switch (Battle.instance.battleTanks[i].camp)
+                {
+                    case 1: friendNumber++; break;
+                    case 2: enemyNumber++; break;
+                }
+            }
+        }
+        GUIStyle titleStyle2 = new GUIStyle();
+        titleStyle2.fontSize = 45;
+        titleStyle2.normal.textColor = new Color(1.0f, 1.0f, 1.0f, 256f / 256f);
+        int margin = (int)(w / 3);
+        GUI.Label(new Rect((Screen.width / 2 - margin-20), 0, w, h), friendNumber.ToString(), titleStyle2);
+        GUI.Label(new Rect((Screen.width / 2 + margin), 0, w, h), enemyNumber.ToString(), titleStyle2);
+
+    }
 
 
     //绘图
@@ -464,8 +533,18 @@ public class Tank : MonoBehaviour
     {
         if (ctrlType != CtrlType.player)
             return;
-        DrawSight();
         DrawHp();
+        DrawMinimap();
+        DrawScore();
         DrawKillUI();
+
+        if (Constants.stopflag)
+        {
+            DrawStopUI();
+        }
+        else
+        {
+            DrawSight();
+        }
     }
 }

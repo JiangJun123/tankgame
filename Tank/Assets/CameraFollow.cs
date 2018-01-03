@@ -33,29 +33,33 @@ public class CameraFollow : MonoBehaviour
 
     void LateUpdate() 
     {
-        //一些判断
-        if (target == null)
-            return;
-        if (Camera.main == null)
-            return;
-        //目标的坐标
-        Vector3 targetPos = target.transform.position;
-        //用三角函数计算相机位置
-        Vector3 cameraPos;
-        float d = distance *Mathf.Cos (roll);
-        float height = distance * Mathf.Sin(roll);
-        cameraPos.x = targetPos.x +d * Mathf.Cos(rot);
-        cameraPos.z = targetPos.z + d * Mathf.Sin(rot);
-        cameraPos.y = targetPos.y + height;
-        Camera.main.transform.position = cameraPos;
-        //对准目标
-        Camera.main.transform.LookAt(target.transform);
-        //纵向旋转
-        Rotate();
-        //横向旋转
-        Roll();
-        //调整距离
-        Zoom();
+        if (!Constants.stopflag)
+        {
+            //一些判断
+            if (target == null)
+                return;
+            if (Camera.main == null)
+                return;
+            //目标的坐标
+            Vector3 targetPos = target.transform.position;
+            //用三角函数计算相机位置
+            Vector3 cameraPos;
+            float d = distance *Mathf.Cos (roll);
+            float height = distance * Mathf.Sin(roll);
+            cameraPos.x = targetPos.x +d * Mathf.Cos(rot);
+            cameraPos.z = targetPos.z + d * Mathf.Sin(rot);
+            cameraPos.y = targetPos.y + height;
+            Camera.main.transform.position = cameraPos;
+            //对准目标
+            Camera.main.transform.LookAt(target.transform);
+            //纵向旋转
+            Rotate();
+            //横向旋转
+            Roll();
+            //调整距离
+            Zoom();
+        }
+        
     }
 
     //设置目标

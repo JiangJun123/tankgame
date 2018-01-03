@@ -12,4 +12,7 @@ public class Constants{
 
 	public static int isWin=-1;
 
+    public static bool stopflag=false;
+
+    public static UnityEngine.Canvas canvas;
 }
