@@ -30,3 +30,4 @@ E:\unity3d\tankgame\Tank\Temp\bin\Debug\UnityEngine.HoloLens.xml
 E:\unity3d\tankgame\Tank\obj\Debug\Assembly-CSharp-firstpass.csprojResolveAssemblyReference.cache
 E:\unity3d\tankgame\Tank\obj\Debug\Assembly-CSharp-firstpass.dll
 E:\unity3d\tankgame\Tank\obj\Debug\Assembly-CSharp-firstpass.pdb
+E:\unity3d\tankgame\Tank\obj\Debug\Assembly-CSharp-firstpass.csproj.CoreCompileInputs.cache

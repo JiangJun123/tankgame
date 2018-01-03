@@ -51,6 +51,8 @@ public class OptionPanel : PanelBase
 		Constants.enemyNumber = dropdown2.value + 1;
 		Constants.friendNumber = dropdown1.value + 1;
 		SceneManager.LoadScene (Constants.modeOptionsValue [ dropdown3.value]);
+        Cursor.visible = false;
+        Time.timeScale = 1;
         Close();
     }
 
